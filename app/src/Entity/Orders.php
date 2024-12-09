@@ -5,7 +5,6 @@ namespace App\Entity;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Get;
-use App\Controller\CreateOrdersController;
 use App\Repository\OrdersRepository;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -26,7 +25,18 @@ use App\Entity\Warehouses;
 #[ORM\Index(name: 'IDX_4', columns: ['create_date', 'status'])]
 #[ORM\Index(name: 'IDX_5', columns: ['hash'])]
 #[ORM\Entity(repositoryClass: OrdersRepository::class)]
-#[ApiResource()]
+#[ApiResource
+(
+    operations: [
+        new Post(
+            openapi: new Model\Operation(
+                summary: 'Эндпоинт №3',
+                description: 'Эндпоинт №3 (2? см REST API)  запросе - сохранить (создать) данные.',
+            )
+        )
+    ])
+
+]
 #[ORM\HasLifecycleCallbacks]
 class Orders
 {
@@ -130,10 +140,10 @@ class Orders
     #[ApiProperty(
         openapiContext: [
             'type' => 'float',
-            'example' => 1
+            'example' => 1.1
         ]
     )]
-    private ?float $delivery = null;
+    private ?string $delivery = null;
 
     #[ORM\Column(name: "delivery_type", nullable: true, options: ["comment" => "Тип доставки: 0 - адрес клинта, 1 - адрес склада", "default" => 0])]
     #[ApiProperty(
@@ -325,7 +335,7 @@ class Orders
             'example' => '1.000000'
         ]
     )]
-    private ?float $curRate = 1.000000;
+    private ?string $curRate = '1.000000';
 
     #[ORM\Column(name: "currency", length: 3, options: ["comment" => "валюта при которой был оформлен заказ", "default" => 'EUR'])]
     #[ApiProperty(
