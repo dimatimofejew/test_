@@ -4,48 +4,23 @@ namespace App\EventSubscriber;
 
 use App\Entity\Orders;
 use App\Service\OrderService;
-use Doctrine\Common\EventSubscriber;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
-use Doctrine\ORM\Events;
-use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\PrePersist;
+use Doctrine\ORM\Mapping\PreUpdate;
 
-class OrdersSubscriber implements EventSubscriber
+class OrdersSubscriber
 {
     private OrderService $orderService;
+
     public function __construct(OrderService $orderService)
     {
         $this->orderService = $orderService;
     }
-    /**
-     * Возвращает список событий, на которые подписан этот Subscriber.
-     */
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::prePersist,
-            Events::preUpdate,
-        ];
-    }
 
-    /**
-     * Обрабатывает событие создания (prePersist).
-     */
-    public function prePersist(PrePersistEventArgs $args): void
-    {
-        $entity = $args->getObject();
-        // Проверяем, что это сущность Orders
-        if (!$entity instanceof Orders) {
-            return;
-        }
-        $entity = $this->orderService->setDataOrder($entity);
-
-    }
-
-    /**
-     * Обрабатывает событие обновления (preUpdate).
-     */
-    public function preUpdate(PreUpdateEventArgs $args): void
+    #[AsDoctrineListener(event: 'prePersist')]
+    public function onPrePersist(PrePersistEventArgs $args): void
     {
         $entity = $args->getObject();
 
@@ -54,10 +29,22 @@ class OrdersSubscriber implements EventSubscriber
             return;
         }
 
-        // Получаем данные изменений
+        // Устанавливаем данные заказа
+        $this->orderService->setDataOrder($entity);
+    }
+
+    #[AsDoctrineListener(event: 'preUpdate')]
+    public function onPreUpdate(PreUpdateEventArgs $args): void
+    {
+        $entity = $args->getObject();
+
+        // Проверяем, что это сущность Orders
+        if (!$entity instanceof Orders) {
+            return;
+        }
+
+        // Получаем изменения и обновляем данные
         $changes = $args->getEntityChangeSet();
-        // Проходим по всем полям и устанавливаем значения
         $this->orderService->setDataOrder($entity, $changes);
-
     }
 }
