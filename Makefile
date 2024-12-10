@@ -5,6 +5,25 @@ include .env
 
 export $(shell sed 's/=.*//' .env)
 
+test:
+	docker exec -it mysql mysql -u root -p$(MYSQL_ROOT_PASSWORD) -e "DROP DATABASE IF EXISTS $(MYSQL_DATABASE)_test;"
+	@echo "Creating test database..."
+	# Создание базы данных в MySQL контейнере
+	docker exec -it mysql mysql -u root -p$(MYSQL_ROOT_PASSWORD) -e "CREATE DATABASE IF NOT EXISTS $(MYSQL_DATABASE)_test;";
+	@echo "Granting privileges to user..."
+	# Даем привилегии пользователю для тестовой базы данных
+	docker exec -it mysql mysql -u root -p$(MYSQL_ROOT_PASSWORD) -e "GRANT ALL PRIVILEGES ON $(MYSQL_DATABASE)_test.* TO '$(MYSQL_USER)'@'%';"
+	@echo "php bin/console doctrine:schema:create --env=test"
+	docker exec -it php php bin/console doctrine:schema:create --env=test
+	@echo "Running PHP tests..."
+	docker exec -it php php bin/phpunit
+	# Запуск тестов в контейнере PHP
+#	docker exec -it php /usr/local/php
+	@echo "Dropping test database..."
+#	# Удаление тестовой базы данных
+	docker exec -it mysql mysql -u root -p$(MYSQL_ROOT_PASSWORD) -e "DROP DATABASE IF EXISTS $(MYSQL_DATABASE)_test;"
+	@echo "Test finished and database dropped."
+
 up:
 	docker compose up -d --build
 
@@ -37,5 +56,10 @@ env:
 	echo "APP_ENV=$(APP_ENV)" >> app/.env
 	echo "DOMAIN=$(DOMAIN)" >> app/.env
 	echo "NGINX_PORT=$(NGINX_PORT)" >> app/.env
+
+
+
+
+
 	envsubst < sphinx/manticore.template.conf > sphinx/manticore.conf
 
