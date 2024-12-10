@@ -103,6 +103,9 @@ class OrderController extends AbstractController
         $page = $request->query->get('page', 1);
         $limit = $request->query->get('limit', 10);
         $groupBy = $request->query->get('groupBy', 'month');
+        if (empty($page)||empty($limit)||empty($groupBy)) {
+            return new JsonResponse(['success'=>false, 'message' => 'Отсутствует обязательный параметр'], 400);
+        }
         if (!in_array($groupBy, ['month', 'year', 'day'])) {
             return new JsonResponse(['success'=>false, 'message' => 'Параметр "groupBy" может быть только: month|year|day'], 400);
         }

@@ -4,26 +4,16 @@ namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Orders;
+use http\Client\Response;
 
 class OrderTest extends ApiTestCase
 {
-    public function setUp(): void
+    private $fake_data =[];
+    private $fake_response=[];
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
-        self::bootKernel();
-    }
-
-
-    public function testExistApiDoc(): void
-    {
-        $response = static::createClient()->request('GET', '/api/doc');
-        $this->assertResponseIsSuccessful();
-        $this->assertResponseStatusCodeSame(200);
-    }
-
-    public function testCreateOrder(): void
-    {
-
-        $fake_data = json_decode('{
+        parent::__construct($name, $data, $dataName);
+        $this->fake_data = json_decode('{
   "hash": "hash",
   "userId": 1,
   "token": "token_token",
@@ -122,8 +112,7 @@ class OrderTest extends ApiTestCase
     "warehouseData": "Данные склада: адрес, название, часы работы"
   }
 }', true);
-//print_r(json_decode($fake_data,true));
-        $fake_response = json_decode('{
+        $this->fake_response =json_decode('{
   "@context": "/api/contexts/Orders",
   "@type": "Orders",
   "hash": "hash",
@@ -132,16 +121,128 @@ class OrderTest extends ApiTestCase
   "number": "#A123123",
   "status": 1
 }', true);
+    }
+
+    public function setUp(): void
+    {
+        self::bootKernel();
+    }
 
 
-        $response = static::createClient()->request('POST', 'http://localhost:8080/api/orders', ['json' => $fake_data,
+    public function testExistApiDoc(): void
+    {
+        $response = static::createClient()->request('GET', '/api/doc');
+        $this->assertResponseIsSuccessful();
+        $this->assertResponseStatusCodeSame(200);
+    }
+//Эндпоинт №3
+    public function testCreateOrder(): void
+    {
+        $response = static::createClient()->request('POST', 'http://localhost:8080/api/orders', ['json' => $this->fake_data,
             'headers' => [
                 'Content-Type' => 'application/ld+json', // Заголовок для тела запроса
                 'Accept' => 'application/ld+json',       // Заголовок для формата ответа
             ]]);
         $this->assertResponseStatusCodeSame(201);
-        $this->assertJsonContains($fake_response);
+        $this->assertJsonContains($this->fake_response);
         $this->assertMatchesRegularExpression('~^/api/orders/\d+$~', $response->toArray()['@id']);
         $this->assertMatchesResourceItemJsonSchema(Orders::class);
     }
+//Эндпоинт №3
+    public function testFailedCreateOrder(): void
+    {
+        $bad_data = $this->fake_data;
+        unset($bad_data['hash']);
+        $response = static::createClient()->request('POST', 'http://localhost:8080/api/orders', ['json' => $bad_data,
+            'headers' => [
+                'Content-Type' => 'application/ld+json', // Заголовок для тела запроса
+                'Accept' => 'application/ld+json',       // Заголовок для формата ответа
+            ]]);
+        $this->assertResponseStatusCodeSame(422);
+
+        $this->assertJsonContains(
+            ["violations" => [
+                ["message" => "This value should not be blank."],
+            ]]);
+     }
+//Эндпоинт №4
+    public function testOrderFound(): void
+    {
+        $response = static::createClient()->request('GET', 'http://localhost:8080/api/orders/1');
+        $this->assertResponseStatusCodeSame(200);
+    }
+    //Эндпоинт №4
+    public function testOrderNotFound(): void
+    {
+    $response = static::createClient()->request('GET', 'http://localhost:8080/api/orders/1234');
+    $this->assertResponseStatusCodeSame(404);
+    }
+//Эндпоинт №2
+    public function testOrdersCountSuccessfulResponse(): void
+    {
+        $client = static::createClient();
+
+
+        $client->request('GET', 'http://localhost:8080/api/orders-count?page=1&limit=10&groupBy=day',[
+            'headers' => [
+                'Accept' => 'application/ld+json',       // Заголовок для формата ответа
+            ]
+        ]);
+
+        // Проверяем статус ответа
+        $this->assertResponseIsSuccessful();
+        $this->assertResponseStatusCodeSame(200);
+
+        // Проверяем содержимое ответа
+        $responseContent = json_decode($client->getResponse()->getContent(), true);
+        $this->assertArrayHasKey('groupBy', $responseContent);
+        $this->assertEquals('day', $responseContent['groupBy']);
+        $this->assertArrayHasKey('totalPages', $responseContent);
+        $this->assertArrayHasKey('page', $responseContent);
+        $this->assertArrayHasKey('limit', $responseContent);
+        $this->assertArrayHasKey('data', $responseContent);
+
+        // Проверяем пример данных
+        $this->assertIsArray($responseContent['data']);
+        foreach ($responseContent['data'] as $dataItem) {
+            $this->assertArrayHasKey('groupDate', $dataItem);
+            $this->assertArrayHasKey('orderCount', $dataItem);
+            $this->assertIsString($dataItem['groupDate']);
+            $this->assertIsInt($dataItem['orderCount']);
+        }
+    }
+//Эндпоинт №2
+    public function testOrdersCountInvalidParameters(): void
+    {
+        $client = static::createClient();
+
+        // Выполняем запрос с некорректным параметром groupBy
+        $client->request('GET', 'http://localhost:8080/api/orders-count?page=1&limit=10&groupBy=noday', [
+            'headers' => [
+                'Accept' => 'application/ld+json',       // Заголовок для формата ответа
+            ]
+        ]);
+
+        // Проверяем статус ответа
+        $this->assertResponseStatusCodeSame(400);
+
+    }
+
+    public function testOrdersCountMissingRequiredParameter(): void
+    {
+        $client = static::createClient();
+
+        // Выполняем запрос без обязательного параметра groupBy
+        $client->request('GET', 'http://localhost:8080/api/orders-count?page=1&limit=&groupBy=', [
+            'headers' => [
+                'Accept' => 'application/ld+json',       // Заголовок для формата ответа
+            ]
+        ]);
+        // Проверяем статус ответа
+        $this->assertResponseStatusCodeSame(400);
+    }
+
+
+
+
 }
