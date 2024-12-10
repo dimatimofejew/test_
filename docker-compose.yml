@@ -12,8 +12,8 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
-#    volumes:
-#      - mysql_data:/var/lib/mysql
+    volumes:
+      - mysql_data:/var/lib/mysql
 
   php:
     build:
@@ -24,6 +24,9 @@ services:
     environment:
       APP_ENV: ${APP_ENV}
       APP_SECRET: ${APP_SECRET}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - ./app:/var/www/symfony
     depends_on:
@@ -52,7 +55,6 @@ services:
     restart: always
     environment:
       - EXTRA=1
- #     - CREATE_PLAIN_TABLES=1
       - CREATE_PLAIN_TABLES=idx_orders;idx_orders:* * * * *;
     ports:
       - "9306:9306"
@@ -62,7 +64,6 @@ services:
     volumes:
       - ./sphinx/manticore.conf:/etc/manticoresearch/manticore.conf # uncomment if you use a custom config
       - ./sphinx/data:/var/lib/manticore  # Обеспечивает сохранение индекса
- #     - ./sphinx/manticore.cron:/etc/cron.d/manticore
     depends_on:
       - php
 volumes:

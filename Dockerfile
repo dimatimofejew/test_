@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     libxml2-dev \
+    mariadb-client \
     && docker-php-ext-install intl pdo_mysql zip soap
 
 
@@ -28,4 +29,4 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Устанавливаем стандартную команду запуска
 CMD ["docker-entrypoint.sh"]
 
-CMD ["php-fpm"]
+#CMD ["php-fpm"]
