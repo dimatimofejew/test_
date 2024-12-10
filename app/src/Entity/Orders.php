@@ -142,7 +142,7 @@ class Orders
             'example' => 1.1
         ]
     )]
-    private ?string $delivery = null;
+    private ?float $delivery = null;
 
     #[ORM\Column(name: "delivery_type", nullable: true, options: ["comment" => "Тип доставки: 0 - адрес клинта, 1 - адрес склада", "default" => 0])]
     #[ApiProperty(
@@ -334,7 +334,7 @@ class Orders
             'example' => '1.000000'
         ]
     )]
-    private ?string $curRate = '1.000000';
+    private ?float $curRate = 1.000000;
 
     #[ORM\Column(name: "currency", length: 3, options: ["comment" => "валюта при которой был оформлен заказ", "default" => 'EUR'])]
     #[ApiProperty(
@@ -714,12 +714,12 @@ class Orders
         return $this;
     }
 
-    public function getDelivery(): ?string
+    public function getDelivery(): ?float
     {
         return $this->delivery;
     }
 
-    public function setDelivery(?string $delivery): static
+    public function setDelivery(?float $delivery): static
     {
         $this->delivery = $delivery;
 
@@ -954,12 +954,12 @@ class Orders
         return $this;
     }
 
-    public function getCurRate(): ?string
+    public function getCurRate(): ?float
     {
         return $this->curRate;
     }
 
-    public function setCurRate(?string $curRate): static
+    public function setCurRate(?float $curRate): static
     {
         $this->curRate = $curRate;
 
