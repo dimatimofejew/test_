@@ -28,6 +28,10 @@ use App\Entity\Warehouses;
 #[ApiResource
 (
     operations: [
+        new Get( openapi: new Model\Operation(
+            summary: 'Эндпоинт №4',
+            description: 'Получение одного заказа.',
+        )),
         new Post(
             openapi: new Model\Operation(
                 summary: 'Эндпоинт №3',
