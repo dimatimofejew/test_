@@ -49,9 +49,9 @@ env:
 	echo 'MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0' >> app/.env
 	echo 'MAILER_DSN=null://null' >> app/.env
 	echo "CORS_ALLOW_ORIGIN='^https?://($(DOMAIN)|127\.0\.0\.1)(:[0-9]+)?$$'" >> app/.env
-	echo "APP_ENV=$(APP_ENV)" >> app/.env
-	echo "DOMAIN=$(DOMAIN)" >> app/.env
-	echo "NGINX_PORT=$(NGINX_PORT)" >> app/.env
+	echo "APP_ENV=$(APP_ENV)" >> app/.env.local
+	echo "DOMAIN=$(DOMAIN)" >> app/.env.local
+	echo "NGINX_PORT=$(NGINX_PORT)" >> app/.env.local
 
 	echo "KERNEL_CLASS='App\Kernel'" > app/.env.test
 	echo "APP_SECRET=$(APP_SECRET)" >> app/.env.test

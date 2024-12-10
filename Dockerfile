@@ -20,8 +20,12 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/symfony
 
 COPY app/ .
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
-RUN composer install
+RUN composer install \
+    --no-interaction \
+    --no-scripts
+#RUN composer install
 # Добавляем выполнение миграций при старте
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
