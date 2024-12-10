@@ -47,27 +47,24 @@ services:
       - php
 
   sphinx:
+    image: manticoresearch/manticore:latest
     container_name: sphinx
-    image: manticoresearch/manticore
+    restart: always
     environment:
       - EXTRA=1
-    restart: always
+ #     - CREATE_PLAIN_TABLES=1
+      - CREATE_PLAIN_TABLES=idx_orders;idx_orders:* * * * *;
     ports:
-        - 127.0.0.1:9306:9306
-        - 127.0.0.1:9308:9308
-    ulimits:
-        nproc: 65535
-        nofile:
-          soft: 65535
-          hard: 65535
-        memlock:
-          soft: -1
-          hard: -1
+      - "9306:9306"
+      - "9312:9312"
+      - "9306:9306"
+      - "9308:9308"
     volumes:
-        - ./sphinx/data:/var/lib/manticore
-      #      - ./manticore.conf:/etc/manticoresearch/manticore.conf # uncomment if you use a custom config
+      - ./sphinx/manticore.conf:/etc/manticoresearch/manticore.conf # uncomment if you use a custom config
+      - ./sphinx/data:/var/lib/manticore  # Обеспечивает сохранение индекса
+ #     - ./sphinx/manticore.cron:/etc/cron.d/manticore
     depends_on:
-     - php
+      - php
 volumes:
   mysql_data:
 
