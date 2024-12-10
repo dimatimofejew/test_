@@ -35,5 +35,7 @@ env:
 	echo 'MAILER_DSN=null://null' >> app/.env
 	echo "CORS_ALLOW_ORIGIN='^https?://($(DOMAIN)|127\.0\.0\.1)(:[0-9]+)?$$'" >> app/.env
 	echo "APP_ENV=$(APP_ENV)" >> app/.env
+	echo "DOMAIN=$(DOMAIN)" >> app/.env
+	echo "NGINX_PORT=$(NGINX_PORT)" >> app/.env
 
 

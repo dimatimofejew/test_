@@ -31,7 +31,7 @@ use App\Entity\Warehouses;
         new Post(
             openapi: new Model\Operation(
                 summary: 'Эндпоинт №3',
-                description: 'Эндпоинт №3 (2? см REST API)  запросе - сохранить (создать) данные.',
+                description: 'Эндпоинт №3 (2? см REST API) - при <a target="_blank" href="/soap/orders?wsdl">SOAP</a> запросе - сохранить (создать) данные.',
             )
         )
     ])

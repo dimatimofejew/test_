@@ -17,8 +17,14 @@ services:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
-            - '../src/Entity/'
             - '../src/Kernel.php'
-
+    App\Service\OrderService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            #$orderRepository: '@App\Repository\OrdersRepository'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\EventSubscriber\OrdersSubscriber:
+        tags:
+            - { name: doctrine.event_subscriber }
+
