@@ -227,7 +227,7 @@ class OrderTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(400);
 
     }
-
+//Эндпоинт №2
     public function testOrdersCountMissingRequiredParameter(): void
     {
         $client = static::createClient();
@@ -242,7 +242,53 @@ class OrderTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(400);
     }
 
+    //Эндпоинт №4+
+    public function testOrderSearchSuccessfulResponse(): void
+    {
+        $client = static::createClient();
 
 
+        $client->request('GET', 'http://localhost:8080/api/search?term=%D0%A3%D0%B6%D0%B3%D0%BE%D1%80%D0%BE%D0%B4&page=0&limit=10&field_weights=name',[
+            'headers' => [
+                'Accept' => 'application/ld+json',       // Заголовок для формата ответа
+            ]
+        ]);
 
+        // Проверяем статус ответа
+        $this->assertResponseIsSuccessful();
+        $this->assertResponseStatusCodeSame(200);
+
+        // Проверяем содержимое ответа
+        $responseContent = json_decode($client->getResponse()->getContent(), true);
+        $this->assertArrayHasKey('success', $responseContent);
+        $this->assertEquals(true, $responseContent['success']);
+        $this->assertArrayHasKey('total', $responseContent);
+        $this->assertArrayHasKey('data', $responseContent);
+
+        // Проверяем пример данных
+        $this->assertIsArray($responseContent['data']);
+        if(!empty($responseContent['data'])){
+        foreach ($responseContent['data'] as $dataItem) {
+            $this->assertArrayHasKey('id', $dataItem);
+            $this->assertIsInt($dataItem['id']);
+            $this->assertArrayHasKey('number', $dataItem);
+            $this->assertIsString($dataItem['number']);
+            $this->assertArrayHasKey('url', $dataItem);
+            $this->assertIsString($dataItem['url']);
+        }
+        }
+    }
+    //Эндпоинт №4+
+    public function testOrderSearchMissingResponse(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', 'http://localhost:8080/api/search?term=%D0%A3%D0%B6%D0%B3%D0%BE%D1%80%D0%BE%D0%B4&page=0&limit=10&field_weights=nameaaa',[
+            'headers' => [
+                'Accept' => 'application/ld+json',       // Заголовок для формата ответа
+            ]
+        ]);
+        // Проверяем статус ответа
+        $this->assertResponseStatusCodeSame(400);
+        // Проверяем содержимое ответа
+    }
 }

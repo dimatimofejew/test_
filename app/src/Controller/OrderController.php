@@ -212,13 +212,32 @@ class OrderController extends AbstractController
     public function searchOrders(Request $request): JsonResponse
     {
         $term = $request->query->get('term');
-        if (!$term) {
-            return new JsonResponse(['error' => 'Параметр "term" обязателен.'], 400);
-        }
+
         $page = (int)$request->query->get('page', 0);
         $limit = (int)$request->query->get('limit', 10);
         $field_weights = $request->query->get('field_weights', null);
-
+        if (!$term) {
+            return new JsonResponse(['error' => 'Параметр "term" обязателен.'], 400);
+        }
+        if(!empty($field_weights) && !in_array($field_weights, ["hash",
+                "number",
+                "email",
+                "company_name",
+                "name",
+                "description",
+                "client_name",
+                "client_surname",
+                "delivery_region",
+                "delivery_city",
+                "delivery_address",
+                "biling_region",
+                "biling_city",
+                "address_address",
+                "manager_name",
+                "manager_email",
+                "manager_phone"])){
+            return new JsonResponse(['error' => 'Недопустимый параметр "field_weights".'], 400);
+        }
         try {
 
             $params = [
