@@ -1,9 +1,9 @@
 # Makefile
 
 # Переменные окружения
-include .env
+include .env.example
 
-export $(shell sed 's/=.*//' .env)
+export $(shell sed 's/=.*//' .env.example)
 
 test:
 	docker exec -it mysql mariadb -u root -p$(MYSQL_ROOT_PASSWORD) -e "DROP DATABASE IF EXISTS $(MYSQL_DATABASE)_test; " >null
@@ -44,7 +44,6 @@ env:
 	echo "SPHINX_PORT=$(SPHINX_PORT)" >> .env
 	echo "DOMAIN=$(DOMAIN)" >> .env
 	echo "NGINX_PORT=$(NGINX_PORT)" >> .env
-	echo "APP_SECRET=$(APP_SECRET)" >> .env
 	echo "APP_SECRET=$(APP_SECRET)" > app/.env
 	echo 'DATABASE_URL="mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@mysql:3306/$(MYSQL_DATABASE)?serverVersion=9.1.0-MariaDB&charset=utf8mb4"' >> app/.env
 	echo 'MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0' >> app/.env
