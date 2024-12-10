@@ -37,5 +37,5 @@ env:
 	echo "APP_ENV=$(APP_ENV)" >> app/.env
 	echo "DOMAIN=$(DOMAIN)" >> app/.env
 	echo "NGINX_PORT=$(NGINX_PORT)" >> app/.env
-
+	envsubst < sphinx/manticore.template.conf > sphinx/manticore.conf
 
