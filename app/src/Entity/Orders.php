@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\GetCollection;
+
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Get;
 use App\Repository\OrdersRepository;
@@ -10,14 +10,9 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Metadata\Put;
 use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\OpenApi\Model;
-use App\Entity\Managers;
-use App\Entity\Carriers;
-use App\Entity\Clients;
-use App\Entity\Addresses;
-use App\Entity\Warehouses;
+
 
 #[ORM\Table(name: 'orders')]
 #[ORM\Index(name: 'IDX_2', columns: ['user_id'])]
