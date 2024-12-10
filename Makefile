@@ -6,22 +6,19 @@ include .env
 export $(shell sed 's/=.*//' .env)
 
 test:
-	docker exec -it mysql mysql -u root -p$(MYSQL_ROOT_PASSWORD) -e "DROP DATABASE IF EXISTS $(MYSQL_DATABASE)_test;"
+	docker exec -it mysql mariadb -u root -p$(MYSQL_ROOT_PASSWORD) -e "DROP DATABASE IF EXISTS $(MYSQL_DATABASE)_test; " >null
 	@echo "Creating test database..."
 	# Создание базы данных в MySQL контейнере
-	docker exec -it mysql mysql -u root -p$(MYSQL_ROOT_PASSWORD) -e "CREATE DATABASE IF NOT EXISTS $(MYSQL_DATABASE)_test;";
+	docker exec -it mysql mariadb -u root -p$(MYSQL_ROOT_PASSWORD) -e "CREATE DATABASE IF NOT EXISTS $(MYSQL_DATABASE)_test;"; >null
 	@echo "Granting privileges to user..."
 	# Даем привилегии пользователю для тестовой базы данных
-	docker exec -it mysql mysql -u root -p$(MYSQL_ROOT_PASSWORD) -e "GRANT ALL PRIVILEGES ON $(MYSQL_DATABASE)_test.* TO '$(MYSQL_USER)'@'%';"
+	docker exec -it mysql mariadb -u root -p$(MYSQL_ROOT_PASSWORD) -e "GRANT ALL PRIVILEGES ON $(MYSQL_DATABASE)_test.* TO '$(MYSQL_USER)'@'%';" >null
 	@echo "php bin/console doctrine:schema:create --env=test"
-	docker exec -it php php bin/console doctrine:schema:create --env=test
+	docker exec -it php php bin/console doctrine:schema:create --env=test >null
 	@echo "Running PHP tests..."
 	docker exec -it php php bin/phpunit
-	# Запуск тестов в контейнере PHP
-#	docker exec -it php /usr/local/php
 	@echo "Dropping test database..."
-#	# Удаление тестовой базы данных
-	docker exec -it mysql mysql -u root -p$(MYSQL_ROOT_PASSWORD) -e "DROP DATABASE IF EXISTS $(MYSQL_DATABASE)_test;"
+	docker exec -it mysql mariadb -u root -p$(MYSQL_ROOT_PASSWORD) -e "DROP DATABASE IF EXISTS $(MYSQL_DATABASE)_test;" > null
 	@echo "Test finished and database dropped."
 
 up:
@@ -57,8 +54,12 @@ env:
 	echo "DOMAIN=$(DOMAIN)" >> app/.env
 	echo "NGINX_PORT=$(NGINX_PORT)" >> app/.env
 
-
-
+	echo "KERNEL_CLASS='App\Kernel'" > app/.env.test
+	echo "APP_SECRET=$(APP_SECRET)" >> app/.env.test
+	echo "SYMFONY_DEPRECATIONS_HELPER=999999" >> app/.env.test
+	echo "PANTHER_APP_ENV=panther" >> app/.env.test
+	echo "PANTHER_ERROR_SCREENSHOT_DIR=./var/error-screenshots" >> app/.env.test
+	echo 'DATABASE_URL="mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@mysql:3306/$(MYSQL_DATABASE)?serverVersion=9.1.0-MariaDB&charset=utf8mb4"' >> app/.env.test
 
 
 	envsubst < sphinx/manticore.template.conf > sphinx/manticore.conf
