@@ -48,6 +48,9 @@ class PriceController
         $factory = $request->query->get('factory');
         $collection = $request->query->get('collection');
         $article = $request->query->get('article');
+        if(!$factory || !$collection || !$article) {
+            return new JsonResponse(['error' => 'Недопустимые параметры'], 400);
+        }
         try {
             $url = "https://tile.expert/fr/tile/$factory/$collection/a/$article";
             $html = file_get_contents($url);
@@ -66,7 +69,7 @@ class PriceController
                 // Вывод результата
                 //    var_dump($parsedData);
             } else {
-                return new JsonResponse(['success' => false, 'message' => 'Элемент не найден.'], 200);
+                return new JsonResponse(['success' => false, 'message' => 'Элемент не найден.'], 404);
             }
             return new JsonResponse([
                 'price' => $parsedData['slider']['elements'][$idElement]['priceEuroFr'],
@@ -75,7 +78,7 @@ class PriceController
                 'article' => $parsedData['slider']['elements'][$idElement]['url'],
             ]);
         }catch (\Exception $e) {
-                return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+                return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 404);
             }
 
     }

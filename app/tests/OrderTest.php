@@ -4,15 +4,17 @@ namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Orders;
-use http\Client\Response;
+
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class OrderTest extends ApiTestCase
 {
-    private $fake_data =[];
-    private $fake_response=[];
-    public function __construct(?string $name = null, array $data = [], $dataName = '')
+    private mixed $fake_data =[];
+    private mixed $fake_response=[];
+
+
+    public function setUp(): void
     {
-        parent::__construct($name, $data, $dataName);
         $this->fake_data = json_decode('{
   "hash": "hash",
   "userId": 1,
@@ -121,17 +123,16 @@ class OrderTest extends ApiTestCase
   "number": "#A123123",
   "status": 1
 }', true);
-    }
-
-    public function setUp(): void
-    {
         self::bootKernel();
     }
 
-
     public function testExistApiDoc(): void
     {
-        $response = static::createClient()->request('GET', '/api/doc');
+        try {
+            static::createClient()->request('GET', '/api/doc');
+        } catch (TransportExceptionInterface $e) {
+            $this->fail('Request failed: ' . $e->getMessage());
+        }
         $this->assertResponseIsSuccessful();
         $this->assertResponseStatusCodeSame(200);
     }
@@ -153,11 +154,15 @@ class OrderTest extends ApiTestCase
     {
         $bad_data = $this->fake_data;
         unset($bad_data['hash']);
-        $response = static::createClient()->request('POST', 'http://localhost:8080/api/orders', ['json' => $bad_data,
-            'headers' => [
-                'Content-Type' => 'application/ld+json', // Заголовок для тела запроса
-                'Accept' => 'application/ld+json',       // Заголовок для формата ответа
-            ]]);
+        try {
+            static::createClient()->request('POST', 'http://localhost:8080/api/orders', ['json' => $bad_data,
+                'headers' => [
+                    'Content-Type' => 'application/ld+json', // Заголовок для тела запроса
+                    'Accept' => 'application/ld+json',       // Заголовок для формата ответа
+                ]]);
+        } catch (TransportExceptionInterface $e) {
+            $this->fail('Request failed: ' . $e->getMessage());
+        }
         $this->assertResponseStatusCodeSame(422);
 
         $this->assertJsonContains(
@@ -168,14 +173,23 @@ class OrderTest extends ApiTestCase
 //Эндпоинт №4
     public function testOrderFound(): void
     {
-        $response = static::createClient()->request('GET', 'http://localhost:8080/api/orders/1');
+        try {
+            static::createClient()->request('GET', 'http://localhost:8080/api/orders/1');
+        } catch (TransportExceptionInterface $e) {
+            $this->fail('Request failed: ' . $e->getMessage());
+        }
         $this->assertResponseStatusCodeSame(200);
+        $this->assertMatchesResourceItemJsonSchema(Orders::class);
     }
     //Эндпоинт №4
     public function testOrderNotFound(): void
     {
-    $response = static::createClient()->request('GET', 'http://localhost:8080/api/orders/1234');
-    $this->assertResponseStatusCodeSame(404);
+        try {
+            static::createClient()->request('GET', 'http://localhost:8080/api/orders/1234');
+        } catch (TransportExceptionInterface $e) {
+            $this->fail('Request failed: ' . $e->getMessage());
+        }
+        $this->assertResponseStatusCodeSame(404);
     }
 //Эндпоинт №2
     public function testOrdersCountSuccessfulResponse(): void
@@ -183,11 +197,15 @@ class OrderTest extends ApiTestCase
         $client = static::createClient();
 
 
-        $client->request('GET', 'http://localhost:8080/api/orders-count?page=1&limit=10&groupBy=day',[
-            'headers' => [
-                'Accept' => 'application/ld+json',       // Заголовок для формата ответа
-            ]
-        ]);
+        try {
+            $client->request('GET', 'http://localhost:8080/api/orders-count?page=1&limit=10&groupBy=day', [
+                'headers' => [
+                    'Accept' => 'application/ld+json',       // Заголовок для формата ответа
+                ]
+            ]);
+        } catch (TransportExceptionInterface $e) {
+            $this->fail('Request failed: ' . $e->getMessage());
+        }
 
         // Проверяем статус ответа
         $this->assertResponseIsSuccessful();
@@ -217,11 +235,15 @@ class OrderTest extends ApiTestCase
         $client = static::createClient();
 
         // Выполняем запрос с некорректным параметром groupBy
-        $client->request('GET', 'http://localhost:8080/api/orders-count?page=1&limit=10&groupBy=noday', [
-            'headers' => [
-                'Accept' => 'application/ld+json',       // Заголовок для формата ответа
-            ]
-        ]);
+        try {
+            $client->request('GET', 'http://localhost:8080/api/orders-count?page=1&limit=10&groupBy=noday', [
+                'headers' => [
+                    'Accept' => 'application/ld+json',       // Заголовок для формата ответа
+                ]
+            ]);
+        } catch (TransportExceptionInterface $e) {
+            $this->fail('Request failed: ' . $e->getMessage());
+        }
 
         // Проверяем статус ответа
         $this->assertResponseStatusCodeSame(400);
@@ -233,26 +255,33 @@ class OrderTest extends ApiTestCase
         $client = static::createClient();
 
         // Выполняем запрос без обязательного параметра groupBy
-        $client->request('GET', 'http://localhost:8080/api/orders-count?page=1&limit=&groupBy=', [
-            'headers' => [
-                'Accept' => 'application/ld+json',       // Заголовок для формата ответа
-            ]
-        ]);
+        try {
+            $client->request('GET', 'http://localhost:8080/api/orders-count?page=1&limit=&groupBy=', [
+                'headers' => [
+                    'Accept' => 'application/ld+json',       // Заголовок для формата ответа
+                ]
+            ]);
+        } catch (TransportExceptionInterface $e) {
+            $this->fail('Request failed: ' . $e->getMessage());
+        }
         // Проверяем статус ответа
         $this->assertResponseStatusCodeSame(400);
     }
-
     //Эндпоинт №4+
     public function testOrderSearchSuccessfulResponse(): void
     {
         $client = static::createClient();
 
 
-        $client->request('GET', 'http://localhost:8080/api/search?term=%D0%A3%D0%B6%D0%B3%D0%BE%D1%80%D0%BE%D0%B4&page=0&limit=10&field_weights=name',[
-            'headers' => [
-                'Accept' => 'application/ld+json',       // Заголовок для формата ответа
-            ]
-        ]);
+        try {
+            $client->request('GET', 'http://localhost:8080/api/search?term=%D0%A3%D0%B6%D0%B3%D0%BE%D1%80%D0%BE%D0%B4&page=0&limit=10&field_weights=name', [
+                'headers' => [
+                    'Accept' => 'application/ld+json',       // Заголовок для формата ответа
+                ]
+            ]);
+        } catch (TransportExceptionInterface $e) {
+            $this->fail('Request failed: ' . $e->getMessage());
+        }
 
         // Проверяем статус ответа
         $this->assertResponseIsSuccessful();
@@ -261,7 +290,7 @@ class OrderTest extends ApiTestCase
         // Проверяем содержимое ответа
         $responseContent = json_decode($client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('success', $responseContent);
-        $this->assertEquals(true, $responseContent['success']);
+        $this->assertTrue($responseContent['success']);
         $this->assertArrayHasKey('total', $responseContent);
         $this->assertArrayHasKey('data', $responseContent);
 
@@ -282,11 +311,15 @@ class OrderTest extends ApiTestCase
     public function testOrderSearchMissingResponse(): void
     {
         $client = static::createClient();
-        $client->request('GET', 'http://localhost:8080/api/search?term=%D0%A3%D0%B6%D0%B3%D0%BE%D1%80%D0%BE%D0%B4&page=0&limit=10&field_weights=nameaaa',[
-            'headers' => [
-                'Accept' => 'application/ld+json',       // Заголовок для формата ответа
-            ]
-        ]);
+        try {
+            $client->request('GET', 'http://localhost:8080/api/search?term=%D0%A3%D0%B6%D0%B3%D0%BE%D1%80%D0%BE%D0%B4&page=0&limit=10&field_weights=nameaaa', [
+                'headers' => [
+                    'Accept' => 'application/ld+json',       // Заголовок для формата ответа
+                ]
+            ]);
+        } catch (TransportExceptionInterface $e) {
+            $this->fail('Request failed: ' . $e->getMessage());
+        }
         // Проверяем статус ответа
         $this->assertResponseStatusCodeSame(400);
         // Проверяем содержимое ответа
