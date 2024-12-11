@@ -15,7 +15,7 @@ class PriceTest extends ApiTestCase
     public function testGetPrice(): void
     {
         try {
-            static::createClient()->request('GET', 'http://localhost:8080/api/price?factory=cobsa&collection=manual&article=manu7530bcbm-manualbaltic7-5x30');
+            static::createClient()->request('GET', 'http://' . $_ENV['DOMAIN'] . ':' . $_ENV['NGINX_PORT'] .'/api/price?factory=cobsa&collection=manual&article=manu7530bcbm-manualbaltic7-5x30');
         } catch (TransportExceptionInterface $e) {
             $this->fail('Request failed: ' . $e->getMessage());
         }
@@ -27,7 +27,7 @@ class PriceTest extends ApiTestCase
     public function testGetPriceMisssing(): void
     {
         try {
-            static::createClient()->request('GET', 'http://localhost:8080/api/price?factory=cobsa');
+            static::createClient()->request('GET', 'http://' . $_ENV['DOMAIN'] . ':' . $_ENV['NGINX_PORT'] .'/api/price?factory=cobsa');
         } catch (TransportExceptionInterface $e) {
             $this->fail('Request failed: ' . $e->getMessage());
         }
@@ -36,7 +36,7 @@ class PriceTest extends ApiTestCase
     public function testGetPriceNotFound(): void
     {
         try {
-            static::createClient()->request('GET', 'http://localhost:8080/api/price?factory=cobsa&collection=manual1&article=manu7530bcbm-manualbaltic7-5x30');
+            static::createClient()->request('GET', 'http://' . $_ENV['DOMAIN'] . ':' . $_ENV['NGINX_PORT'] .'/api/price?factory=cobsa&collection=manual1&article=manu7530bcbm-manualbaltic7-5x30');
         } catch (TransportExceptionInterface $e) {
             $this->fail('Request failed: ' . $e->getMessage());
         }

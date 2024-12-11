@@ -139,7 +139,7 @@ class OrderTest extends ApiTestCase
 //Эндпоинт №3
     public function testCreateOrder(): void
     {
-        $response = static::createClient()->request('POST', 'http://localhost:8080/api/orders', ['json' => $this->fake_data,
+        $response = static::createClient()->request('POST', 'http://' . $_ENV['DOMAIN'] . ':' . $_ENV['NGINX_PORT'] .'/api/orders', ['json' => $this->fake_data,
             'headers' => [
                 'Content-Type' => 'application/ld+json', // Заголовок для тела запроса
                 'Accept' => 'application/ld+json',       // Заголовок для формата ответа
@@ -155,7 +155,7 @@ class OrderTest extends ApiTestCase
         $bad_data = $this->fake_data;
         unset($bad_data['hash']);
         try {
-            static::createClient()->request('POST', 'http://localhost:8080/api/orders', ['json' => $bad_data,
+            static::createClient()->request('POST', 'http://' . $_ENV['DOMAIN'] . ':' . $_ENV['NGINX_PORT'] .'/api/orders', ['json' => $bad_data,
                 'headers' => [
                     'Content-Type' => 'application/ld+json', // Заголовок для тела запроса
                     'Accept' => 'application/ld+json',       // Заголовок для формата ответа
@@ -174,7 +174,7 @@ class OrderTest extends ApiTestCase
     public function testOrderFound(): void
     {
         try {
-            static::createClient()->request('GET', 'http://localhost:8080/api/orders/1');
+            static::createClient()->request('GET', 'http://' . $_ENV['DOMAIN'] . ':' . $_ENV['NGINX_PORT'] .'/api/orders/1');
         } catch (TransportExceptionInterface $e) {
             $this->fail('Request failed: ' . $e->getMessage());
         }
@@ -185,7 +185,7 @@ class OrderTest extends ApiTestCase
     public function testOrderNotFound(): void
     {
         try {
-            static::createClient()->request('GET', 'http://localhost:8080/api/orders/1234');
+            static::createClient()->request('GET', 'http://' . $_ENV['DOMAIN'] . ':' . $_ENV['NGINX_PORT'] .'/api/orders/1234');
         } catch (TransportExceptionInterface $e) {
             $this->fail('Request failed: ' . $e->getMessage());
         }
@@ -198,7 +198,7 @@ class OrderTest extends ApiTestCase
 
 
         try {
-            $client->request('GET', 'http://localhost:8080/api/orders-count?page=1&limit=10&groupBy=day', [
+            $client->request('GET', 'http://' . $_ENV['DOMAIN'] . ':' . $_ENV['NGINX_PORT'] .'/api/orders-count?page=1&limit=10&groupBy=day', [
                 'headers' => [
                     'Accept' => 'application/ld+json',       // Заголовок для формата ответа
                 ]
@@ -236,7 +236,7 @@ class OrderTest extends ApiTestCase
 
         // Выполняем запрос с некорректным параметром groupBy
         try {
-            $client->request('GET', 'http://localhost:8080/api/orders-count?page=1&limit=10&groupBy=noday', [
+            $client->request('GET', 'http://' . $_ENV['DOMAIN'] . ':' . $_ENV['NGINX_PORT'] .'/api/orders-count?page=1&limit=10&groupBy=noday', [
                 'headers' => [
                     'Accept' => 'application/ld+json',       // Заголовок для формата ответа
                 ]
@@ -256,7 +256,7 @@ class OrderTest extends ApiTestCase
 
         // Выполняем запрос без обязательного параметра groupBy
         try {
-            $client->request('GET', 'http://localhost:8080/api/orders-count?page=1&limit=&groupBy=', [
+            $client->request('GET', 'http://' . $_ENV['DOMAIN'] . ':' . $_ENV['NGINX_PORT'] .'/api/orders-count?page=1&limit=&groupBy=', [
                 'headers' => [
                     'Accept' => 'application/ld+json',       // Заголовок для формата ответа
                 ]
@@ -274,7 +274,7 @@ class OrderTest extends ApiTestCase
 
 
         try {
-            $client->request('GET', 'http://localhost:8080/api/search?term=%D0%A3%D0%B6%D0%B3%D0%BE%D1%80%D0%BE%D0%B4&page=0&limit=10&field_weights=name', [
+            $client->request('GET', 'http://' . $_ENV['DOMAIN'] . ':' . $_ENV['NGINX_PORT'] .'/api/search?term=%D0%A3%D0%B6%D0%B3%D0%BE%D1%80%D0%BE%D0%B4&page=0&limit=10&field_weights=name', [
                 'headers' => [
                     'Accept' => 'application/ld+json',       // Заголовок для формата ответа
                 ]
@@ -312,7 +312,7 @@ class OrderTest extends ApiTestCase
     {
         $client = static::createClient();
         try {
-            $client->request('GET', 'http://localhost:8080/api/search?term=%D0%A3%D0%B6%D0%B3%D0%BE%D1%80%D0%BE%D0%B4&page=0&limit=10&field_weights=nameaaa', [
+            $client->request('GET', 'http://' . $_ENV['DOMAIN'] . ':' . $_ENV['NGINX_PORT'] .'/api/search?term=%D0%A3%D0%B6%D0%B3%D0%BE%D1%80%D0%BE%D0%B4&page=0&limit=10&field_weights=nameaaa', [
                 'headers' => [
                     'Accept' => 'application/ld+json',       // Заголовок для формата ответа
                 ]
@@ -324,4 +324,24 @@ class OrderTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(400);
         // Проверяем содержимое ответа
     }
+    public function testOrderSoapMissingResponse(): void
+    {
+        $client = static::createClient();
+        try {
+            $client->request('GET', 'http://' . $_ENV['DOMAIN'] . ':' . $_ENV['NGINX_PORT'] .'/api/search?term=%D0%A3%D0%B6%D0%B3%D0%BE%D1%80%D0%BE%D0%B4&page=0&limit=10&field_weights=nameaaa', [
+                'headers' => [
+                    'Accept' => 'application/ld+json',       // Заголовок для формата ответа
+                ]
+            ]);
+        } catch (TransportExceptionInterface $e) {
+            $this->fail('Request failed: ' . $e->getMessage());
+        }
+        // Проверяем статус ответа
+        $this->assertResponseStatusCodeSame(400);
+        // Проверяем содержимое ответа
+    }
+
+
+
+
 }

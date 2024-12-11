@@ -45,7 +45,7 @@ env:
 	echo "DOMAIN=$(DOMAIN)" >> .env
 	echo "NGINX_PORT=$(NGINX_PORT)" >> .env
 	echo "APP_SECRET=$(APP_SECRET)" > app/.env
-	echo 'DATABASE_URL="mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@mysql:3306/$(MYSQL_DATABASE)?serverVersion=9.1.0-MariaDB&charset=utf8mb4"' >> app/.env
+	echo 'DATABASE_URL="mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@mysql:3306/$(MYSQL_DATABASE)?serverVersion=11.6.2-MariaDB&charset=utf8mb4"' >> app/.env
 	echo 'MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0' >> app/.env
 	echo 'MAILER_DSN=null://null' >> app/.env
 	echo "CORS_ALLOW_ORIGIN='^https?://($(DOMAIN)|127\.0\.0\.1)(:[0-9]+)?$$'" >> app/.env
@@ -58,8 +58,9 @@ env:
 	echo "SYMFONY_DEPRECATIONS_HELPER=999999" >> app/.env.test
 	echo "PANTHER_APP_ENV=panther" >> app/.env.test
 	echo "PANTHER_ERROR_SCREENSHOT_DIR=./var/error-screenshots" >> app/.env.test
-	echo 'DATABASE_URL="mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@mysql:3306/$(MYSQL_DATABASE)?serverVersion=9.1.0-MariaDB&charset=utf8mb4"' >> app/.env.test
-
+	echo 'DATABASE_URL="mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@mysql:3306/$(MYSQL_DATABASE)?serverVersion=11.6.2-MariaDB&charset=utf8mb4"' >> app/.env.test
+	echo "DOMAIN=$(DOMAIN)" >> app/.env.test
+	echo "NGINX_PORT=$(NGINX_PORT)" >> app/.env.test
 
 	envsubst < sphinx/manticore.template.conf > sphinx/manticore.conf
 
