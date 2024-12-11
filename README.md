@@ -36,4 +36,4 @@ make  down
 пересобрать и перезапустить
 
 make restart
-спать осталась БД и SOAP test
+спать осталась БД и SOAP test 
