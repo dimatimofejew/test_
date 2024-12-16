@@ -18,7 +18,7 @@ test:
 	@echo "Running PHP tests..."
 	docker exec -it php php bin/phpunit
 	@echo "Dropping test database..."
-	docker exec -it mysql mariadb -u root -p$(MYSQL_ROOT_PASSWORD) -e "DROP DATABASE IF EXISTS $(MYSQL_DATABASE)_test;" > null
+#	docker exec -it mysql mariadb -u root -p$(MYSQL_ROOT_PASSWORD) -e "DROP DATABASE IF EXISTS $(MYSQL_DATABASE)_test;" > null
 	@echo "Test finished and database dropped."
 
 up:

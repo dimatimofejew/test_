@@ -1,0 +1,11 @@
+
+[37;41m !                                                                              [39;49m
+[37;41m ! [CAUTION] This operation should not be executed in a production environment! [39;49m
+[37;41m !                                                                              [39;49m
+
+ Creating database schema...
+
+[30;42m                                                                                [39;49m
+[30;42m [OK] Database schema created successfully!                                     [39;49m
+[30;42m                                                                                [39;49m
+
