@@ -117,7 +117,7 @@ class SoapPostTest extends WebTestCase
         $soapClient = new \SoapClient(__DIR__.'/../public/soap/soap.wsdl', array('exceptions' => 1));
 
         // Установка адреса
-        $soapClient->__setLocation('http://nginx:8080/soap/orders');
+        $soapClient->__setLocation('http://nginx:'.$_ENV['NGINX_PORT'].'/soap/orders');
 
         // Отправка запроса и получение результата
         try {
@@ -240,7 +240,7 @@ class SoapPostTest extends WebTestCase
         $soapClient = new \SoapClient(__DIR__.'/../public/soap/soap.wsdl', array('exceptions' => 1));
 
         // Установка адреса
-        $soapClient->__setLocation('http://nginx:8080/soap/orders');
+        $soapClient->__setLocation('http://nginx:'.$_ENV['NGINX_PORT'].'/soap/orders');
 
         // Отправка запроса и получение результата
         try {
